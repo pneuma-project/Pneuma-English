@@ -248,16 +248,15 @@ static NSString *Cell_TWO = @"cellTwo";
 #pragma mark - UITableView delegate
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, screen_width, 40)];
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, screen_width, 0.1)];
     view.backgroundColor = RGBColor(242, 250, 254, 1.0);
     UILabel *headLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, screen_width-20, 40)];
     headLabel.backgroundColor = RGBColor(242, 250, 254, 1.0);
     headLabel.textColor = RGBColor(8, 86, 184, 1.0);
     headLabel.font = [UIFont systemFontOfSize:13];
+    headLabel.hidden = YES;
     if (section == 0) {
-        headLabel.text = @"2019";
-    }else if (section == 1){
-        headLabel.text = @"December 2016";
+        headLabel.text = @"2020";
     }
     [view addSubview:headLabel];
      
@@ -286,7 +285,7 @@ static NSString *Cell_TWO = @"cellTwo";
             //祭FL挖的坑，踩坑人2：你祭了他的坑不能填平一点吗。。。
             NSInteger index = indexPath.row - 1;
             SprayerDataModel *model = self.dataArr[index];
-            NSString *timeStr = [DisplayUtils getTimeStampToString:@"MM-dd" AndTime:[NSString stringWithFormat:@"%lld",model.addDate/1000]];
+            NSString *timeStr = [DisplayUtils getTimeStampToString:@"MMM-dd YYYY" AndTime:[NSString stringWithFormat:@"%lld",model.addDate/1000]];
             cell.timeLabel.text = timeStr;
             cell.spraysLabel.text = [NSString stringWithFormat:@"%ld/%ld",(long)model.suckFogNum,(long)model.goodSuckFogNum];
             cell.inspiratoryLabel.text = [NSString stringWithFormat:@"%.3f",model.dataSum];
@@ -306,7 +305,7 @@ static NSString *Cell_TWO = @"cellTwo";
 
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    return 40;
+    return 0.1;
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath

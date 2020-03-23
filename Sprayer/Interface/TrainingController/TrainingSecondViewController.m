@@ -14,7 +14,7 @@
 {
     UIView *circleView;
     int allNum;
-    BOOL isFirst;//是否第一次进入页面
+//    BOOL isFirst;//是否第一次进入页面
     BOOL isLeave;//是否离开界面(因为即使离开页面通知仍会收到)
 }
 @property (nonatomic,strong)FLChartView *chartView;
@@ -44,18 +44,29 @@
 
 -(void)refreshViewAction
 {
-    [self createView];
+    if (isLeave == NO) {
+        [self createView];
+    }
 }
 
 #pragma mark - CustemBBI代理方法
 -(void)BBIdidClickWithName:(NSString *)infoStr
 {
+    [UserDefaultsUtils saveValue:@[] forKey:@"trainDataArr"];
+    [UserDefaultsUtils saveValue:@[] forKey:@"trainTimeArr"];
+    [UserDefaultsUtils saveValue:@[] forKey:@"medicineIdArr"];
+    [UserDefaultsUtils saveValue:@[] forKey:@"TwoTrainDataArr"];
+    [UserDefaultsUtils saveValue:@"" forKey:@"TwoTrainTimeArr"];
+    [UserDefaultsUtils saveValue:@"" forKey:@"TwoMedicineIdArr"];
     [self.navigationController popViewControllerAnimated:YES];
 }
 
 #pragma mark - 创建UI
 -(void)createView
 {
+    for (UIView *view in self.view.subviews) {
+        [view removeFromSuperview];
+    }
     UILabel *secondResultLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, kSafeAreaTopHeight+6, screen_width, 60)];
     secondResultLabel.text = @"Second Inspiratory Cycle Results";
     secondResultLabel.textColor = RGBColor(8, 86, 184, 1.0);
@@ -82,22 +93,37 @@
     [circleView addSubview:titleLabel];
     
     //曲线图
+    NSArray * arr = [UserDefaultsUtils valueWithKey:@"trainDataArr"];
     NSArray * mutArr;
     NSString *trainTime;
     NSString *medicineId;
     //判断是否第一次进入设备
-    if (isFirst == NO) {
-        isFirst = YES;
-        mutArr = @[];
-        trainTime = @"";
-        medicineId = @"";
-    }else if(isLeave == NO) {
-        mutArr = [[[UserDefaultsUtils valueWithKey:@"trainDataArr"]lastObject] componentsSeparatedByString:@","];
-        [UserDefaultsUtils saveValue:mutArr forKey:@"TwoTrainDataArr"];
-        trainTime = [[UserDefaultsUtils valueWithKey:@"trainTimeArr"] lastObject];
-        [UserDefaultsUtils saveValue:trainTime forKey:@"TwoTrainTimeArr"];
-        medicineId = [[UserDefaultsUtils valueWithKey:@"medicineIdArr"] lastObject];
-        [UserDefaultsUtils saveValue:trainTime forKey:@"TwoMedicineIdArr"];
+//    if (isFirst == NO) {
+//        isFirst = YES;
+//        mutArr = @[];
+//        trainTime = @"";
+//        medicineId = @"";
+//    }else if(isLeave == NO) {
+//        mutArr = [[[UserDefaultsUtils valueWithKey:@"trainDataArr"]lastObject] componentsSeparatedByString:@","];
+//        [UserDefaultsUtils saveValue:mutArr forKey:@"TwoTrainDataArr"];
+//        trainTime = [[UserDefaultsUtils valueWithKey:@"trainTimeArr"] lastObject];
+//        [UserDefaultsUtils saveValue:trainTime forKey:@"TwoTrainTimeArr"];
+//        medicineId = [[UserDefaultsUtils valueWithKey:@"medicineIdArr"] lastObject];
+//        [UserDefaultsUtils saveValue:medicineId forKey:@"TwoMedicineIdArr"];
+//    }
+    if (arr.count != 0) {
+        if (isLeave == NO) {
+            mutArr = [[[UserDefaultsUtils valueWithKey:@"trainDataArr"] lastObject] componentsSeparatedByString:@","];
+            [UserDefaultsUtils saveValue:mutArr forKey:@"TwoTrainDataArr"];
+            trainTime = [[UserDefaultsUtils valueWithKey:@"trainTimeArr"] lastObject];
+            [UserDefaultsUtils saveValue:trainTime forKey:@"TwoTrainTimeArr"];
+            medicineId = [[UserDefaultsUtils valueWithKey:@"medicineIdArr"] lastObject];
+            [UserDefaultsUtils saveValue:medicineId forKey:@"TwoMedicineIdArr"];
+        }
+    }else{
+        mutArr = [UserDefaultsUtils valueWithKey:@"TwoTrainDataArr"];
+        trainTime = [UserDefaultsUtils valueWithKey:@"TwoTrainTimeArr"];
+        medicineId = [UserDefaultsUtils valueWithKey:@"TwoMedicineIdArr"];
     }
     
     allNum = 0;
@@ -110,27 +136,27 @@
     self.chartView.titleOfXStr = @"Sec";
     self.chartView.leftDataArr = mutArr;
     //求出数组的最大值
-    int max = 0;
-    for (NSString * str in mutArr) {
-        if (max<[str intValue]) {
-            max = [str intValue];
-        }
-    }
-    if (max>100) {
-        max = max/100+1;
-        max*=100;
-    }else if (max>10)
-    {
-        max = max/10+1;
-        max*=10;
-    }else
-    {
-        max = 10;
-    }
-    max = 180;
+    int max = 200;
+//    for (NSString * str in mutArr) {
+//        if (max<[str intValue]) {
+//            max = [str intValue];
+//        }
+//    }
+//    if (max>100) {
+//        max = max/100+1;
+//        max*=100;
+//    }else if (max>10)
+//    {
+//        max = max/10+1;
+//        max*=10;
+//    }else
+//    {
+//        max = 10;
+//    }
+//    max = 180;
     //得出y轴的坐标轴
     NSMutableArray * yNumArr = [NSMutableArray array];
-    for (int i =10; i>=0;i--) {
+    for (int i =8; i>=0;i--) {
         [yNumArr addObject:[NSString stringWithFormat:@"%d",i*(max/10)]];
     }
     
@@ -174,6 +200,9 @@
         
     }];
     UIAlertAction *alertAction2 = [UIAlertAction actionWithTitle:@"YES" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [UserDefaultsUtils saveValue:@[] forKey:@"trainDataArr"];
+        [UserDefaultsUtils saveValue:@[] forKey:@"trainTimeArr"];
+        [UserDefaultsUtils saveValue:@[] forKey:@"medicineIdArr"];
         TrainingThirdViewController *thirdVC = [[TrainingThirdViewController alloc] init];
         [self.navigationController pushViewController:thirdVC animated:YES];
     }];

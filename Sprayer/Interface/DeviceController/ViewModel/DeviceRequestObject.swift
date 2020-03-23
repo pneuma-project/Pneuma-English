@@ -55,7 +55,7 @@ class DeviceRequestObject: NSObject {
     }
     
     //添加训练数据
-    @objc func requestSaveTrainData(medicineId:String,trainData:String,dataSum:Float,addDate:String,sucBlock:((_ code:String)->())?) {
+    @objc func requestSaveTrainData(medicineId:String,trainData:String,dataSum:Double,addDate:String,sucBlock:((_ code:String)->())?) {
         if let loginKey = UserInfoData.mr_findFirst()?.loginKey {
             SURLRequest.sharedInstance.requestPostWithHeader(URL_SaveTrainData, param: ["loginKey":loginKey,"medicineId":medicineId,"trainData":trainData,"dataSum":dataSum,"addDate":addDate], checkSum: [loginKey,medicineId,trainData,"\(dataSum)",addDate], suc: { (data) in
                 Dprint("URL_SaveTrainData:\(data)")

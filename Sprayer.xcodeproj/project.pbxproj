@@ -568,14 +568,15 @@
 		6426201C1E80B56200263124 /* BlueTooth */ = {
 			isa = PBXGroup;
 			children = (
-				6426201D1E80B56200263124 /* LCProgressHUD */,
+				6426202D1E80B56200263124 /* Tools */,
+				6426201E1E80B56200263124 /* BlueToothManager.h */,
+				6426201F1E80B56200263124 /* BlueToothManager.m */,
 				642620291E80B56200263124 /* Model.h */,
 				6426202A1E80B56200263124 /* Model.m */,
 				6426202B1E80B56200263124 /* SyTableViewCell.h */,
 				6426202C1E80B56200263124 /* SyTableViewCell.m */,
 				64BBBAA21E82AD58008A40E5 /* BlueWriteData.h */,
 				64BBBAA31E82AD58008A40E5 /* BlueWriteData.m */,
-				6426202D1E80B56200263124 /* Tools */,
 			);
 			path = BlueTooth;
 			sourceTree = "<group>";
@@ -583,8 +584,6 @@
 		6426201D1E80B56200263124 /* LCProgressHUD */ = {
 			isa = PBXGroup;
 			children = (
-				6426201E1E80B56200263124 /* BlueToothManager.h */,
-				6426201F1E80B56200263124 /* BlueToothManager.m */,
 				642620201E80B56200263124 /* HUDImage */,
 				642620271E80B56200263124 /* LCProgressHUD.h */,
 				642620281E80B56200263124 /* LCProgressHUD.m */,
@@ -653,6 +652,7 @@
 		644C9C2C1E6575E10030C3B9 /* Library */ = {
 			isa = PBXGroup;
 			children = (
+				6426201D1E80B56200263124 /* LCProgressHUD */,
 				BFF420891EA76B320093BE8D /* FMDB */,
 				6426201C1E80B56200263124 /* BlueTooth */,
 				BFDAC76C1E7274FA00E17D7B /* JHChart */,
@@ -1630,7 +1630,7 @@
 				INFOPLIST_FILE = Sprayer/Config/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.FL.Pneuma.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.FL.Pneuma.dev.EN;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Sprayer/Config/Sprayer-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -1650,7 +1650,7 @@
 				INFOPLIST_FILE = Sprayer/Config/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.FL.Pneuma.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.FL.Pneuma.dev.EN;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Sprayer/Config/Sprayer-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;

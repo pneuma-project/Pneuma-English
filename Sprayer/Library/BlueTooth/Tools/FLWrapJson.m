@@ -127,9 +127,9 @@
             NSString *value = [UserDefaultsUtils valueWithKey:@"k1flowValue"];
             k1 = [value floatValue];
         }
-        float k2 = 8.67;
+        float k2 = 6.71;
         if (![[NSUserDefaults standardUserDefaults] objectForKey:@"k2flowValue"]) {
-            k2 = 8.67;
+            k2 = 6.71;
         }else {
             NSString *value = [UserDefaultsUtils valueWithKey:@"k2flowValue"];
             k2 = [value floatValue];
@@ -146,8 +146,8 @@
     for (int i = 0; i<data.length; i++) {
         NSInteger yaliData = [FLDrawDataTool NSDataToNSInteger:[data subdataWithRange:NSMakeRange(0+i, 1)]];
         float yaliNum = (yaliData * 130)/60;
-        yaliNum = [self yaliDataCalculate:yaliData];
-        sum += yaliData;
+        yaliNum = [self yaliDataCalculate:yaliNum];
+        sum += yaliNum;
     }
     return [NSString stringWithFormat:@"%.3f",sum/600.0];
 }

@@ -42,12 +42,6 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disconnectAction) name:PeripheralDidConnect object:nil];
 }
 
--(void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(stopNSTimerAction) name:@"sparyModel" object:nil];
-}
-
 -(void)stopNSTimerAction
 {
     [self.timer setFireDate:[NSDate distantFuture]];
@@ -100,26 +94,10 @@
     NSMutableArray * mutArr = [NSMutableArray array];
     self.chartView.leftDataArr = mutArr;
     //求出数组的最大值
-    int max = 0;
-    for (NSString * str in mutArr) {
-        if (max<[str intValue]) {
-            max = [str intValue];
-        }
-    }
-    if (max>100) {
-        max = max/100+1;
-        max*=100;
-    }else if (max>10)
-    {
-        max = max/10+1;
-        max*=10;
-    }else
-    {
-        max = 10;
-    }
+    int max = 200;
     //得出y轴的坐标轴
     NSMutableArray * yNumArr = [NSMutableArray array];
-    for (int i =10; i>=0;i--) {
+    for (int i =8; i>=0;i--) {
         [yNumArr addObject:[NSString stringWithFormat:@"%d",i*(max/10)]];
     }
 

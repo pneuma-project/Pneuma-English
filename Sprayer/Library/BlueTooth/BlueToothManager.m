@@ -25,9 +25,13 @@ typedef enum _TTGState{
     
 }TTGState;
 
-#define kServiceUUID @"6E400001-B5A3-F393-E0A9-E50E24DCCA9E" //服务的UUID
-#define kNotifyUUID @"6E400003-B5A3-F393-E0A9-E50E24DCCA9E" //特征的UUID
-#define kReadWriteUUID @"6E400002-B5A3-F393-E0A9-E50E24DCCA9E" //特征的UUID
+//#define kServiceUUID @"6E400001-B5A3-F393-E0A9-E50E24DCCA9E" //服务的UUID
+//#define kNotifyUUID @"6E400003-B5A3-F393-E0A9-E50E24DCCA9E" //特征的UUID
+//#define kReadWriteUUID @"6E400002-B5A3-F393-E0A9-E50E24DCCA9E" //特征的UUID
+
+#define kServiceUUID @"49535343-FE7D-4AE5-8FA9-9FAFD205E455" //服务的UUID
+#define kNotifyUUID @"49535343-1E4D-4BD9-BA61-23C647249616" //特征的UUID
+#define kReadWriteUUID @"49535343-8841-43F4-A8D4-ECBE34729BB3" //特征的UUID
 
 @interface BlueToothManager ()
 {
@@ -109,59 +113,89 @@ typedef enum _TTGState{
         [_peripheralList removeAllObjects];
     }
     if (peripheral.name != nil) {
-        if ([peripheral.name isEqualToString:@"nRF52832"] || [peripheral.name isEqualToString:@"SKB369"]) {//1.SKB369   2.nRF52832
-            Model *model = [[Model alloc] init];
-            NSData *data = [advertisementData objectForKey:@"kCBAdvDataManufacturerData"];
-            NSString *macAddress = [FLDrawDataTool hexStringFromData:data];
-            for (Model * model in _peripheralList) {
-                if ([model.macAddress isEqualToString:macAddress]) {
-                    return;
+        Model * model = [[Model alloc]init];
+        model.peripheral = peripheral;
+        model.num = [RSSI intValue];
+        //如果 外设数组数量为0 则 直接将 该 model 添加到 外设数组中
+        //如果 外设数组数量不为0 则 用遍历数组 用外设的名称 进行判断 是否 存在于该数组中
+        //如果 外设名称相同  则 只修改 该外设 所对应的 rssi
+        //如果 外设名称不同  则 将此外设 加入到外设数组中
+        if (_peripheralList.count == 0 && ([peripheral.name isEqualToString:@"BM71-NorwayB"])) {
+            [self connectPeripheralWith:model];
+            [_peripheralList addObject:model];
+            //[[NSNotificationCenter defaultCenter] postNotificationName:@"scanDevice" object:nil userInfo:nil];
+        }else{
+            BOOL ishave = NO;
+            for (Model * mo in _peripheralList) {
+                if ([mo.peripheral.name isEqualToString:model.peripheral.name]) {
+                    mo.num = model.num;
+                    ishave = YES;
+                    break;
+                }else{
+                    
                 }
             }
-            [DeviceRequestObject.shared requestGetMacAddressBindStateWithMacAddress:macAddress sucBlock:^(NSInteger status) {  //1：未绑定   2：已绑定
-                if (status == 2) {
-                    if ([macAddress isEqualToString:[UserInfoData MR_findFirst].macAddress]) {
-                        if (data == nil) {
-                            model.macAddress = @"";
-                            return;
-                        }else {
-                            model.macAddress = macAddress;
-                        }
-                        if ([totalModel.macAddress isEqualToString:model.macAddress]) {
-                            model.isLinking = YES;
-                            model.peripheral = totalModel.peripheral;
-                            model.num = totalModel.num;
-                        }else {
-                            model.isLinking = NO;
-                            model.peripheral = peripheral;
-                            model.num = [RSSI intValue];
-                        }
-                        model.isBindCurrent = YES;
-                        [_peripheralList addObject:model];
-                    }
-                }else {
-                    if (data == nil) {
-                        model.macAddress = @"";
-                        return;
-                    }else {
-                        model.macAddress = macAddress;
-                    }
-                    if ([totalModel.macAddress isEqualToString:model.macAddress]) {
-                        model.isLinking = YES;
-                        model.peripheral = totalModel.peripheral;
-                        model.num = totalModel.num;
-                    }else {
-                        model.isLinking = NO;
-                        model.peripheral = peripheral;
-                        model.num = [RSSI intValue];
-                    }
-                    model.isBindCurrent = NO;
-                    [_peripheralList addObject:model];
-                }
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"scanDevice" object:@{@"DeviceList":_peripheralList} userInfo:nil];
-            }];
+            //判断名称是否是设备的默认名称
+            if (ishave == NO && ([peripheral.name isEqualToString:@"BM71-NorwayB"])) {
+                [_peripheralList addObject:model];
+                //[NSTimer scheduledTimerWithTimeInterval:0.5f target:self selector:@selector(scanDeivceAction) userInfo:nil repeats:YES];
+            }
         }
     }
+//    if (peripheral.name != nil) {
+//        if ([peripheral.name isEqualToString:@"nRF52832"] || [peripheral.name isEqualToString:@"SKB369"] || [peripheral.name isEqualToString:@"BM71-NorwayB"]) {//1.SKB369   2.nRF52832
+//            Model *model = [[Model alloc] init];
+//            NSData *data = [advertisementData objectForKey:@"kCBAdvDataManufacturerData"];
+//            NSString *macAddress = [FLDrawDataTool hexStringFromData:data];
+//            for (Model * model in _peripheralList) {
+//                if ([model.macAddress isEqualToString:macAddress]) {
+//                    return;
+//                }
+//            }
+//            [DeviceRequestObject.shared requestGetMacAddressBindStateWithMacAddress:macAddress sucBlock:^(NSInteger status) {  //1：未绑定   2：已绑定
+//                if (status == 2) {
+//                    if ([macAddress isEqualToString:[UserInfoData MR_findFirst].macAddress]) {
+//                        if (data == nil) {
+//                            model.macAddress = @"";
+//                            return;
+//                        }else {
+//                            model.macAddress = macAddress;
+//                        }
+//                        if ([totalModel.macAddress isEqualToString:model.macAddress]) {
+//                            model.isLinking = YES;
+//                            model.peripheral = totalModel.peripheral;
+//                            model.num = totalModel.num;
+//                        }else {
+//                            model.isLinking = NO;
+//                            model.peripheral = peripheral;
+//                            model.num = [RSSI intValue];
+//                        }
+//                        model.isBindCurrent = YES;
+//                        [_peripheralList addObject:model];
+//                    }
+//                }else {
+//                    if (data == nil) {
+//                        model.macAddress = @"";
+//                        return;
+//                    }else {
+//                        model.macAddress = macAddress;
+//                    }
+//                    if ([totalModel.macAddress isEqualToString:model.macAddress]) {
+//                        model.isLinking = YES;
+//                        model.peripheral = totalModel.peripheral;
+//                        model.num = totalModel.num;
+//                    }else {
+//                        model.isLinking = NO;
+//                        model.peripheral = peripheral;
+//                        model.num = [RSSI intValue];
+//                    }
+//                    model.isBindCurrent = NO;
+//                    [_peripheralList addObject:model];
+//                }
+//                [[NSNotificationCenter defaultCenter] postNotificationName:@"scanDevice" object:@{@"DeviceList":_peripheralList} userInfo:nil];
+//            }];
+//        }
+//    }
 }
 
 //获取扫描到设备的列表
@@ -205,13 +239,14 @@ typedef enum _TTGState{
     NSLog(@">>>外设连接断开连接 %@: %@\n", [peripheral name], [error localizedDescription]);
     [[NSNotificationCenter defaultCenter] postNotificationName:PeripheralDidConnect object:nil userInfo:nil];
     [UserDefaultsUtils saveBoolValue:NO withKey:@"isConnect"];
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(autoConnectAction) userInfo:nil repeats:YES];
+//    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(autoConnectAction) userInfo:nil repeats:YES];
+    [self autoConnectAction];
 }
 
 //自动连接通知
 -(void)autoConnectAction
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"autoConnect" object:nil userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:AutoConnect object:nil userInfo:nil];
 }
 
 //连接设备成功
@@ -224,7 +259,7 @@ typedef enum _TTGState{
     [_per setDelegate:self];
     [_per discoverServices:nil];
     [UserDefaultsUtils saveBoolValue:YES withKey:@"isConnect"];
-    [self.timer invalidate];
+//    [self.timer invalidate];
 }
 
 
@@ -274,7 +309,7 @@ typedef enum _TTGState{
         NSLog(@"获取特征值%@的错误为%@",characteristic.UUID,error);
 
     }else{
-        NSLog(@"特征值：%@  value：%@",characteristic.UUID,characteristic.value);
+//        NSLog(@"特征值：%@  value：%@",characteristic.UUID,characteristic.value);
         _responseData = characteristic.value;
         [self showResult];
     }
@@ -287,8 +322,7 @@ typedef enum _TTGState{
         NSLog(@"搜索到%@的Descriptors的错误是：%@",characteristic.UUID,error);
 
     }else{
-        NSLog(@"characteristic uuid:%@",characteristic.UUID);
-
+//        NSLog(@"characteristic uuid:%@",characteristic.UUID);
         for (CBDescriptor * d in characteristic.descriptors){
             NSLog(@"Descriptor uuid:%@",d.UUID);
 
@@ -365,14 +399,14 @@ typedef enum _TTGState{
                     }
                     NSData *newData = [NSData dataWithBytes:newbt
                                                      length:sizeof(newbt)];
-                    NSLog(@"newdata = %@",newData);
+//                    NSLog(@"newdata = %@",newData);
                     NSInteger type = [FLDrawDataTool NSDataToNSInteger:[newData subdataWithRange:NSMakeRange(0, 1)]];
                     if (type == 2) {//历史数据
                         NSString *timeStamp = [NSString stringWithFormat:@"%ld",(long)[FLDrawDataTool NSDataToNSInteger:[newData subdataWithRange:NSMakeRange(4, 4)]]];
                         NSString *sprayData = [FLWrapJson dataToNSString:[newData subdataWithRange:NSMakeRange(8, 50)]];
                         NSString *sumData = [FLWrapJson dataSumToNSString:[newData subdataWithRange:NSMakeRange(8, 50)]];
                         //药品id
-                        NSInteger medicineId = [FLDrawDataTool NSDataToNSInteger:data];
+                        NSInteger medicineId = [FLDrawDataTool NSDataToNSInteger:[newData subdataWithRange:NSMakeRange(2, 2)]];
                         //时间戳转时间
                         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
                         [formatter setDateStyle:NSDateFormatterMediumStyle];
@@ -405,29 +439,30 @@ typedef enum _TTGState{
                         [newTrainTimeArr addObject:trainTimeStr];
                         [UserDefaultsUtils saveValue:newTrainTimeArr forKey:@"trainTimeArr"];
                         
-                        NSInteger medicineId = [FLDrawDataTool NSDataToNSInteger:data];
+                        NSInteger medicineId = [FLDrawDataTool NSDataToNSInteger:[newData subdataWithRange:NSMakeRange(2, 2)]];
                         NSArray *medicineIdArr = [UserDefaultsUtils valueWithKey:@"medicineIdArr"];
                         NSMutableArray *newMedicineIdArr = [NSMutableArray arrayWithArray:medicineIdArr];
                         [newMedicineIdArr addObject:[NSString stringWithFormat:@"%ld",(long)medicineId]];
-                        [UserDefaultsUtils saveValue:newTrainTimeArr forKey:@"medicineIdArr"];
+                        [UserDefaultsUtils saveValue:newMedicineIdArr forKey:@"medicineIdArr"];
                         
                         [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshView" object:nil userInfo:nil];
                     }else if (type == 1){//当前实时喷雾
-                        NSLog(@"newData = %lu",(unsigned long)newData.length);
+//                        NSLog(@"newData = %lu",(unsigned long)newData.length);
                         NSString *timeStamp = [NSString stringWithFormat:@"%ld",(long)[FLDrawDataTool NSDataToNSInteger:[newData subdataWithRange:NSMakeRange(4, 4)]]];
                         NSString *sprayData = [FLWrapJson dataToNSString:[newData subdataWithRange:NSMakeRange(8, 50)]];
                         NSString *sumData = [FLWrapJson dataSumToNSString:[newData subdataWithRange:NSMakeRange(8, 50)]];
                         //药品id
-                        NSInteger medicineId = [FLDrawDataTool NSDataToNSInteger:data];
+                        NSInteger medicineId = [FLDrawDataTool NSDataToNSInteger:[newData subdataWithRange:NSMakeRange(2, 2)]];
                         //当前读取数据的时间
                         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
                         [formatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
                         NSDate *sprayTime = [NSDate dateWithTimeIntervalSince1970:[timeStamp doubleValue]];
                         NSString * sprayTimeStr = [formatter stringFromDate:sprayTime];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshSprayView" object:nil userInfo:nil];
+                        
                         [DeviceRequestObject.shared requestSaveSuckFogDataWithMedicineId:[NSString stringWithFormat:@"%ld",(long)medicineId] suckFogData:sprayData dataSum:[sumData floatValue] addDate:sprayTimeStr sucBlock:^(NSString * _Nonnull code) {
                             if ([code isEqualToString:@"200"]) {
                                 [BlueWriteData confirmCodePresentData];
+                                [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshSprayView" object:nil userInfo:nil];
                             }
                         }];
                     }else if (type == 5) { //

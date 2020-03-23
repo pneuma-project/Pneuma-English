@@ -30,6 +30,8 @@
     NSArray *dataArr;
     
     BOOL isTrain;
+    
+    UIButton *startBtn;
 }
 
 @property (nonatomic,strong)FL_ScaleCircle *circleView;
@@ -117,7 +119,7 @@
     [chatBgView addSubview:totalLabel];
     
     //按钮
-    UIButton *startBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    startBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     startBtn.frame = CGRectMake(50, 0, screen_width-100, 40);
     startBtn.center = CGPointMake(screen_width/2, chatBgView.current_y_h+(footView.current_h-chatBgView.current_y_h-kTabbarHeight)/2);
     if (isTrain == NO) {
@@ -141,33 +143,35 @@
         [self.yNumArr removeAllObjects];
         if ([model.suckFogData isEqualToString:@""]) {
             isTrain = NO;
+            [startBtn setTitle:@"Start Training" forState:UIControlStateNormal];
         }else{
             isTrain = YES;
+            [startBtn setTitle:@"Restart Training" forState:UIControlStateNormal];
         }
         NSArray *mutArr = [model.suckFogData componentsSeparatedByString:@","];
         allTrain = model.dataSum;
         dataArr = mutArr;
         //求出数组的最大值
-        int max = 0;
-        for (NSString * str in mutArr) {
-            if (max<[str intValue]) {
-                max = [str intValue];
-            }
-        }
-        if (max>100) {
-            max = max/100+1;
-            max*=100;
-        }else if (max>10)
-        {
-            max = max/10+1;
-            max*=10;
-        }else
-        {
-            max = 10;
-        }
-        max = 180;
+        int max = 200;
+//        for (NSString * str in mutArr) {
+//            if (max<[str intValue]) {
+//                max = [str intValue];
+//            }
+//        }
+//        if (max>100) {
+//            max = max/100+1;
+//            max*=100;
+//        }else if (max>10)
+//        {
+//            max = max/10+1;
+//            max*=10;
+//        }else
+//        {
+//            max = 10;
+//        }
+//        max = 180;
         //得出y轴的坐标轴
-        for (int i =10; i>=0;i--) {
+        for (int i =8; i>=0;i--) {
             [self.yNumArr addObject:[NSString stringWithFormat:@"%d",i*(max/10)]];
         }
         //total值
@@ -218,7 +222,6 @@
 #pragma mark - 点击事件
 -(void)startBtnAction
 {
-    [UserDefaultsUtils saveValue:@[] forKey:@"trainDataArr"];
     TrainingStartViewController *trainingStartVC = [[TrainingStartViewController alloc] init];
     [self.navigationController pushViewController:trainingStartVC animated:YES];
 }

@@ -41,31 +41,38 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshViewAction) name:@"refreshView" object:nil];
 }
 
--(void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-}
-
 -(void)viewDidDisappear:(BOOL)animated
 {
-    isLeave = YES;
     [super viewDidDisappear:animated];
+    isLeave = YES;
 }
 
 -(void)refreshViewAction
 {
-    [self createView];
+    if (isLeave == NO) {
+        [self createView];
+    }
 }
 
 #pragma mark - CustemBBI代理方法
 -(void)BBIdidClickWithName:(NSString *)infoStr
 {
+    [UserDefaultsUtils saveValue:@[] forKey:@"trainDataArr"];
+    [UserDefaultsUtils saveValue:@[] forKey:@"trainTimeArr"];
+    [UserDefaultsUtils saveValue:@[] forKey:@"medicineIdArr"];
+    [UserDefaultsUtils saveValue:@[] forKey:@"OneTrainDataArr"];
+    [UserDefaultsUtils saveValue:@"" forKey:@"OneTrainTimeArr"];
+    [UserDefaultsUtils saveValue:@"" forKey:@"OneMedicineIdArr"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"stopTrain" object:nil userInfo:nil];
     [self.navigationController popViewControllerAnimated:YES];
 }
 
 #pragma mark - 创建UI
 -(void)createView
 {
+    for (UIView *view in self.view.subviews) {
+        [view removeFromSuperview];
+    }
     UILabel *firstResultLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, kSafeAreaTopHeight+6, screen_width, 60)];
     firstResultLabel.text = @"First Inspiratory Cycle Results";
     firstResultLabel.textColor = RGBColor(8, 86, 184, 1.0);
@@ -103,12 +110,12 @@
             trainTime = [[UserDefaultsUtils valueWithKey:@"trainTimeArr"] lastObject];
             [UserDefaultsUtils saveValue:trainTime forKey:@"OneTrainTimeArr"];
             medicineId = [[UserDefaultsUtils valueWithKey:@"medicineIdArr"] lastObject];
-            [UserDefaultsUtils saveValue:trainTime forKey:@"OneMedicineIdArr"];
+            [UserDefaultsUtils saveValue:medicineId forKey:@"OneMedicineIdArr"];
         }
     }else{
-        mutArr = @[];
-        trainTime = @"";
-        medicineId = @"";
+        mutArr = [UserDefaultsUtils valueWithKey:@"OneTrainDataArr"];
+        trainTime = [UserDefaultsUtils valueWithKey:@"OneTrainTimeArr"];
+        medicineId = [UserDefaultsUtils valueWithKey:@"OneMedicineIdArr"];
     }
     
     allNum = 0;
@@ -121,27 +128,27 @@
     self.chartView.titleOfXStr = @"Sec";
     self.chartView.leftDataArr = mutArr;
     //求出数组的最大值
-    int max = 0;
-    for (NSString * str in mutArr) {
-        if (max<[str intValue]) {
-            max = [str intValue];
-        }
-    }
-    if (max>100) {
-        max = max/100+1;
-        max*=100;
-    }else if (max>10)
-    {
-        max = max/10+1;
-        max*=10;
-    }else
-    {
-        max = 10;
-    }
-    max = 180;
+    int max = 200;
+//    for (NSString * str in mutArr) {
+//        if (max<[str intValue]) {
+//            max = [str intValue];
+//        }
+//    }
+//    if (max>100) {
+//        max = max/100+1;
+//        max*=100;
+//    }else if (max>10)
+//    {
+//        max = max/10+1;
+//        max*=10;
+//    }else
+//    {
+//        max = 10;
+//    }
+//    max = 180;
     //得出y轴的坐标轴
     NSMutableArray * yNumArr = [NSMutableArray array];
-    for (int i =10; i>=0;i--) {
+    for (int i =8; i>=0;i--) {
         [yNumArr addObject:[NSString stringWithFormat:@"%d",i*(max/10)]];
     }
     self.chartView.dataArrOfY = yNumArr;//拿到Y轴坐标
@@ -184,6 +191,9 @@
         
     }];
     UIAlertAction *alertAction2 = [UIAlertAction actionWithTitle:@"YES" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [UserDefaultsUtils saveValue:@[] forKey:@"trainDataArr"];
+        [UserDefaultsUtils saveValue:@[] forKey:@"trainTimeArr"];
+        [UserDefaultsUtils saveValue:@[] forKey:@"medicineIdArr"];
         TrainingSecondViewController *secondVC = [[TrainingSecondViewController alloc] init];
         [self.navigationController pushViewController:secondVC animated:YES];
     }];

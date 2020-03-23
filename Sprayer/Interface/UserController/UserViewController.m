@@ -40,8 +40,8 @@
     [self setNavTitle:@"My Profile"];
     [self createHeadView];
     
-    imageArr = @[@"my-profile-icon-basic-information",@"my-profile-icon-history",@"my-profile-icon-FlowValue",@"my-profile-icon-basic-information"];   //@"my-profile-icon-patient-information",
-    titleArr = @[@"Basic Information",@"History",@"Pressure VS Flow Rate Equation",@"Drug Information"];//@"Patient Information",
+    imageArr = @[@"my-profile-icon-basic-information",@"my-profile-icon-history",@"my-profile-icon-FlowValue"];   //@"my-profile-icon-patient-information",,@"my-profile-icon-basic-information"
+    titleArr = @[@"Basic Information",@"History",@"Pressure VS Flow Rate Equation"];//@"Patient Information",,@"Drug Information"
     
 }
 -(void)viewWillAppear:(BOOL)animated

@@ -73,7 +73,7 @@
 #define ConnectSucceed @"ConnectSucceed"//连接成功
 #define PeripheralDidConnect @"peripheralDidConnect"//断开连接
 #define IsDisplayMedInfo @"IsDisplayMedInfo" //是否显示了药瓶信息
-
+#define AutoConnect @"autoConnect"    //蓝牙自动连接
 
 
 #endif /* PrefixHeader_pch */

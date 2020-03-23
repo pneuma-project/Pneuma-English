@@ -25,7 +25,6 @@
     NSInteger index;
     NSData *timeData;
 }
-@property (nonatomic,strong)NSTimer *timer;
 
 @end
 
@@ -47,14 +46,14 @@
     [UserDefaultsUtils saveValue:@[] forKey:@"ThreeTrainDataArr"];
     
     [UserDefaultsUtils saveValue:@[] forKey:@"trainTimeArr"];
-    [UserDefaultsUtils saveValue:@[] forKey:@"OneTrainTimeArr"];
-    [UserDefaultsUtils saveValue:@[] forKey:@"TwoTrainTimeArr"];
-    [UserDefaultsUtils saveValue:@[] forKey:@"ThreeTrainTimeArr"];
+    [UserDefaultsUtils saveValue:@"" forKey:@"OneTrainTimeArr"];
+    [UserDefaultsUtils saveValue:@"" forKey:@"TwoTrainTimeArr"];
+    [UserDefaultsUtils saveValue:@"" forKey:@"ThreeTrainTimeArr"];
     
     [UserDefaultsUtils saveValue:@[] forKey:@"medicineIdArr"];
-    [UserDefaultsUtils saveValue:@[] forKey:@"OneMedicineIdArr"];
-    [UserDefaultsUtils saveValue:@[] forKey:@"TwoMedicineIdArr"];
-    [UserDefaultsUtils saveValue:@[] forKey:@"ThreeMedicineIdArr"];
+    [UserDefaultsUtils saveValue:@"" forKey:@"OneMedicineIdArr"];
+    [UserDefaultsUtils saveValue:@"" forKey:@"TwoMedicineIdArr"];
+    [UserDefaultsUtils saveValue:@"" forKey:@"ThreeMedicineIdArr"];
 }
 -(void)viewWillAppear:(BOOL)animated
 {
@@ -62,23 +61,6 @@
 //    [self.navigationItem setHidesBackButton:YES];
     self.navigationItem.rightBarButtonItem = [CustemNavItem initWithString:@"Save" andTarget:self andinfoStr:@"first"];
     self.navigationItem.leftBarButtonItem = [CustemNavItem initWithImage:[UIImage imageNamed:@"icon-back"] andTarget:self andinfoStr:@"two"];
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(stopNSTimerAction) name:@"sparyModel" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disconnectAction) name:PeripheralDidConnect object:nil];
-//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(startTraingAction) name:@"startTrain" object:nil];
-}
--(void)startTraingAction
-{
-    [self.timer invalidate];
-}
-
--(void)stopNSTimerAction
-{
-    [self.timer invalidate];
-}
-
--(void)disconnectAction
-{
-//    [self.timer invalidate];
 }
 
 #pragma mark - CustemBBI代理方法
@@ -86,10 +68,10 @@
 {
     if ([infoStr isEqualToString:@"first"]) {
         
-        NSMutableArray * trainData;
+        NSMutableArray * trainData = [NSMutableArray array];
         NSString *trainTime;
         NSString *medicineId;
-        float trainSum = 0;
+        double trainSum = 0;
         if (index == 100) {
             trainData = [UserDefaultsUtils valueWithKey:@"OneTrainDataArr"];
             trainTime = [UserDefaultsUtils valueWithKey:@"OneTrainTimeArr"];
@@ -104,21 +86,26 @@
             medicineId = [UserDefaultsUtils valueWithKey:@"ThreeMedicineIdArr"];
         }
         for (NSString * str in trainData) {
-            trainSum += [str floatValue];
+            trainSum += [str doubleValue];
         }
         NSString *trainDataStr = [trainData componentsJoinedByString:@","];
-        [DeviceRequestObject.shared requestSaveTrainDataWithMedicineId:medicineId trainData:trainDataStr dataSum:trainSum/600.0 addDate:trainTime sucBlock:^(NSString * _Nonnull code) {
+        NSString *dataSumValue = [NSString stringWithFormat:@"%.3lf",trainSum/600.0];
+        [LCProgressHUD showLoadingText:@"上传中..."];
+        [DeviceRequestObject.shared requestSaveTrainDataWithMedicineId:medicineId trainData:trainDataStr dataSum:[dataSumValue doubleValue] addDate:trainTime sucBlock:^(NSString * _Nonnull code) {
             if ([code isEqualToString:@"200"]) {
+                [LCProgressHUD hide];
                 [LCProgressHUD showSuccessText:NSLocalizedString(@"Upload success", nil)];
                 [self.navigationController popToRootViewControllerAnimated:YES];
             }else {
+                [LCProgressHUD hide];
                 [LCProgressHUD showSuccessText:NSLocalizedString(@"Upload failed", nil)];
             }
         }];
-        [self writeDataAction];
         [[NSNotificationCenter defaultCenter] postNotificationName:@"stopTrain" object:nil userInfo:nil];
+        [self writeDataAction];
     }else if ([infoStr isEqualToString:@"two"]){
-        [self.navigationController popViewControllerAnimated:YES];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"stopTrain" object:nil userInfo:nil];
+        [self.navigationController popToRootViewControllerAnimated:YES];
     }
 }
 
@@ -265,7 +252,6 @@
     }
     UIView * view = [self.view viewWithTag:tap.view.tag];
     view.backgroundColor = RGBColor(210, 238, 238, 1.0);
-    index = 0;
     index = tap.view.tag - 100;
 }
 

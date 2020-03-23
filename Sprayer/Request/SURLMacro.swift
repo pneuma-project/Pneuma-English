@@ -16,7 +16,7 @@ import Foundation
 /// 渠道号  1-备份 2008300-正式
 let SCHANNEL_ID = 2008300
 
-/// 域名
+/// 域名http://pneuma-admin.com/pneuma-api
 let BASE_Url = (SCHANNEL_ID == 1) ? "":"http://pneuma-admin.com/pneuma-api"
 
 /// get请求后缀

@@ -36,13 +36,13 @@
      isLeave = NO;//防止返回用
     [super viewWillAppear:animated];
     self.navigationItem.leftBarButtonItem = [CustemNavItem initWithImage:[UIImage imageNamed:@"icon-back"] andTarget:self andinfoStr:@"first"];
-    NSArray *mutArr = [UserDefaultsUtils valueWithKey:@"trainDataArr"];
-    NSMutableArray *newArr = [[NSMutableArray alloc] init];
-    if (mutArr.count!=0) {
-        [newArr addObject:[mutArr firstObject]];
-        [newArr addObject:[mutArr lastObject]];
-    }
-    [UserDefaultsUtils saveValue:newArr forKey:@"trainDataArr"];
+//    NSArray *mutArr = [UserDefaultsUtils valueWithKey:@"trainDataArr"];
+//    NSMutableArray *newArr = [[NSMutableArray alloc] init];
+//    if (mutArr.count!=0) {
+//        [newArr addObject:[mutArr firstObject]];
+//        [newArr addObject:[mutArr lastObject]];
+//    }
+//    [UserDefaultsUtils saveValue:newArr forKey:@"trainDataArr"];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshViewAction) name:@"refreshView" object:nil];
 }
 -(void)viewDidDisappear:(BOOL)animated
@@ -52,18 +52,29 @@
 }
 -(void)refreshViewAction
 {
-    [self createView];
+    if (isLeave == NO) {
+        [self createView];
+    }
 }
 
 #pragma mark - CustemBBI代理方法
 -(void)BBIdidClickWithName:(NSString *)infoStr
 {
+    [UserDefaultsUtils saveValue:@[] forKey:@"trainDataArr"];
+    [UserDefaultsUtils saveValue:@[] forKey:@"trainTimeArr"];
+    [UserDefaultsUtils saveValue:@[] forKey:@"medicineIdArr"];
+    [UserDefaultsUtils saveValue:@[] forKey:@"ThreeTrainDataArr"];
+    [UserDefaultsUtils saveValue:@"" forKey:@"ThreeTrainTimeArr"];
+    [UserDefaultsUtils saveValue:@"" forKey:@"ThreeMedicineIdArr"];
     [self.navigationController popViewControllerAnimated:YES];
 }
 
 #pragma mark - 创建UI
 -(void)createView
 {
+    for (UIView *view in self.view.subviews) {
+        [view removeFromSuperview];
+    }
     UILabel *thirdResultLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, kSafeAreaTopHeight+6, screen_width, 60)];
     thirdResultLabel.text = @"Third Inspiratory Cycle Results";
     thirdResultLabel.textColor = RGBColor(8, 86, 184, 1.0);
@@ -90,22 +101,37 @@
     [circleView addSubview:titleLabel];
     
     //曲线图
+    NSArray * arr = [UserDefaultsUtils valueWithKey:@"trainDataArr"];
     NSArray * mutArr;
     NSString *trainTime;
     NSString *medicineId;
     //判断是否第一次进入设备
-    if (isFirst == NO) {
-        isFirst = YES;
-        mutArr = @[];
-        trainTime = @"";
-        medicineId = @"";
-    }else if(isLeave == NO) {
-        mutArr = [[[UserDefaultsUtils valueWithKey:@"trainDataArr"]lastObject] componentsSeparatedByString:@","];
-        [UserDefaultsUtils saveValue:mutArr forKey:@"ThreeTrainDataArr"];
-        trainTime = [[UserDefaultsUtils valueWithKey:@"trainTimeArr"] lastObject];
-        [UserDefaultsUtils saveValue:trainTime forKey:@"ThreeTrainTimeArr"];
-        medicineId = [[UserDefaultsUtils valueWithKey:@"medicineIdArr"] lastObject];
-        [UserDefaultsUtils saveValue:trainTime forKey:@"ThreeMedicineIdArr"];
+//    if (isFirst == NO) {
+//        isFirst = YES;
+//        mutArr = @[];
+//        trainTime = @"";
+//        medicineId = @"";
+//    }else if(isLeave == NO) {
+//        mutArr = [[[UserDefaultsUtils valueWithKey:@"trainDataArr"]lastObject] componentsSeparatedByString:@","];
+//        [UserDefaultsUtils saveValue:mutArr forKey:@"ThreeTrainDataArr"];
+//        trainTime = [[UserDefaultsUtils valueWithKey:@"trainTimeArr"] lastObject];
+//        [UserDefaultsUtils saveValue:trainTime forKey:@"ThreeTrainTimeArr"];
+//        medicineId = [[UserDefaultsUtils valueWithKey:@"medicineIdArr"] lastObject];
+//        [UserDefaultsUtils saveValue:medicineId forKey:@"ThreeMedicineIdArr"];
+//    }
+    if (arr.count != 0) {
+        if (isLeave == NO) {
+            mutArr = [[[UserDefaultsUtils valueWithKey:@"trainDataArr"] lastObject] componentsSeparatedByString:@","];
+            [UserDefaultsUtils saveValue:mutArr forKey:@"ThreeTrainDataArr"];
+            trainTime = [[UserDefaultsUtils valueWithKey:@"trainTimeArr"] lastObject];
+            [UserDefaultsUtils saveValue:trainTime forKey:@"ThreeTrainTimeArr"];
+            medicineId = [[UserDefaultsUtils valueWithKey:@"medicineIdArr"] lastObject];
+            [UserDefaultsUtils saveValue:medicineId forKey:@"ThreeMedicineIdArr"];
+        }
+    }else{
+        mutArr =[UserDefaultsUtils valueWithKey:@"ThreeTrainDataArr"];
+        trainTime = [UserDefaultsUtils valueWithKey:@"ThreeTrainTimeArr"];
+        medicineId = [UserDefaultsUtils valueWithKey:@"ThreeMedicineIdArr"];
     }
     
     allNum = 0;
@@ -118,27 +144,27 @@
     self.chartView.titleOfXStr = @"Sec";
     self.chartView.leftDataArr = mutArr;
     //求出数组的最大值
-    int max = 0;
-    for (NSString * str in mutArr) {
-        if (max<[str intValue]) {
-            max = [str intValue];
-        }
-    }
-    if (max>100) {
-        max = max/100+1;
-        max*=100;
-    }else if (max>10)
-    {
-        max = max/10+1;
-        max*=10;
-    }else
-    {
-        max = 10;
-    }
-    max = 180;
+    int max = 200;
+//    for (NSString * str in mutArr) {
+//        if (max<[str intValue]) {
+//            max = [str intValue];
+//        }
+//    }
+//    if (max>100) {
+//        max = max/100+1;
+//        max*=100;
+//    }else if (max>10)
+//    {
+//        max = max/10+1;
+//        max*=10;
+//    }else
+//    {
+//        max = 10;
+//    }
+//    max = 180;
     //得出y轴的坐标轴
     NSMutableArray * yNumArr = [NSMutableArray array];
-    for (int i =10; i>=0;i--) {
+    for (int i =8; i>=0;i--) {
         [yNumArr addObject:[NSString stringWithFormat:@"%d",i*(max/10)]];
     }
     
@@ -180,6 +206,9 @@
 {
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"After training,please select the best inspiratory cycle curve for display during spray dose application." preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *alertAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [UserDefaultsUtils saveValue:@[] forKey:@"trainDataArr"];
+        [UserDefaultsUtils saveValue:@[] forKey:@"trainTimeArr"];
+        [UserDefaultsUtils saveValue:@[] forKey:@"medicineIdArr"];
         RetrainingViewController *retrainVC = [[RetrainingViewController alloc] init];
         [self.navigationController pushViewController:retrainVC animated:YES];
     }];
